@@ -11,6 +11,7 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__,template_folder='templates',static_folder='static')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quizmaster.sqlite3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'thisisakshayamuvva'
 db = SQLAlchemy()
 
 db.init_app(app)
@@ -109,17 +110,65 @@ def hello_world():
 
 @app.route("/login",methods=['GET','POST'])
 def login():
-    return render_template('login.html')
+    if request.method == 'GET':
+        return render_template('login.html')
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username ).first()
+        if user and check_password_hash(user.passhash,password):
+            session['user_id'] = user.id
+            if user.is_admin:
+                return render_template('admin_dashboard.html',user=user)
+            return redirect(url_for('dashboard'))
+        else:
+            flash('Invalid username or password','info')
+            return render_template('login.html')
+            
 
 @app.route("/register",methods=['GET','POST'])
 def register():
+    if request.method == 'GET':
+        return render_template('register.html')
+    if request.method == 'POST':
+        name = request.form['name']
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        qualification = request.form['qualification']
+        dob_str = request.form['date_of_birth']  # Assuming input type="date"
+        dob = datetime.strptime(dob_str, "%Y-%m-%d").date()
+        password_hash = generate_password_hash(password)
+        user = User(name=name,username=username,email=email,passhash=password_hash,qualification=qualification,date_of_birth=dob)
+        db.session.add(user)
+        db.session.commit()
+        return redirect(url_for('login'))   
     return render_template('register.html')
 
 
 
+# @app.route("/dashboard")
+# def dashboard():
+#     if 'user_id' in session:
+#         user = User.query.get(session['user_id'])
+#         # if user.is_admin:
+#         #     return render_template('admin_dashboard.html',user=user)
+#         return render_template('dashboard.html',user=user)
+#     else:
+#         return redirect(url_for('login'))
+
+@app.route('/dashboard')
+def dashboard():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    user = User.query.get(session['user_id'])
+    return render_template('dashboard.html', user=user)
 
 
-
-
+@app.route("/admin_dashboard")
+def admin_dashboard():
+    render_template('admin_dashboard.html')
+    
+    
 if __name__ == "__main__":
     app.run(debug=True)
