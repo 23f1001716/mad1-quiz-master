@@ -43,8 +43,7 @@ class Chapter(db.Model):
     subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'), nullable=False)
     subjects = db.relationship('Subject', back_populates = 'sub_chapter')
     chap_quiz = db.relationship('Quiz', back_populates = 'chapter',cascade = 'all, delete-orphan')
-
-
+    
 class Quiz(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60),nullable=False)
@@ -102,7 +101,7 @@ with app.app_context():
     create_admin()
     
 
-#routes 
+#ROUTES
 
 @app.route("/")
 def hello_world():
@@ -119,7 +118,10 @@ def login():
         if user and check_password_hash(user.passhash,password):
             session['user_id'] = user.id
             if user.is_admin:
-                return render_template('admin_dashboard.html',user=user)
+                session['admin'] = user.id
+                #return render_template('admin_dashboard.html',user=user)
+                if 'admin' in session:
+                    return redirect(url_for('admin_dashboard'))
             return redirect(url_for('dashboard'))
         else:
             flash('Invalid username or password','info')
@@ -147,16 +149,6 @@ def register():
 
 
 
-# @app.route("/dashboard")
-# def dashboard():
-#     if 'user_id' in session:
-#         user = User.query.get(session['user_id'])
-#         # if user.is_admin:
-#         #     return render_template('admin_dashboard.html',user=user)
-#         return render_template('dashboard.html',user=user)
-#     else:
-#         return redirect(url_for('login'))
-
 @app.route('/dashboard')
 def dashboard():
     if 'user_id' not in session:
@@ -165,10 +157,340 @@ def dashboard():
     return render_template('dashboard.html', user=user)
 
 
-@app.route("/admin_dashboard")
+@app.route("/admin_dashboard",methods=['GET'])
 def admin_dashboard():
-    render_template('admin_dashboard.html')
-    
-    
+    if 'admin' in session:
+        subs = Subject.query.all()
+        return render_template('admin_dashboard.html',subject_created = subs)
+   
+   
+@app.route('/create_subject',methods=['GET','POST'])
+def create_subject():
+    if 'admin' in session:
+        if request.method == 'POST':
+            name = request.form['name']
+            description = request.form['description']
+            subject_standard = request.form['subject_standard']
+            subject_to_create = Subject(
+                name=name,
+                description=description,
+                subject_standard=subject_standard
+            )
+            db.session.add(subject_to_create)
+            db.session.commit()
+            flash('Subject created successfully!', 'success')
+            return redirect(url_for('admin_dashboard')) 
+        else:
+            return render_template('sub_creation.html')  
+    return redirect(url_for('login'))
+
+@app.route('/edit_subject/<int:subject_id>',methods=['GET','POST'])
+def edit_subject(subject_id):
+    if 'admin' in session:
+        subject_to_edit = Subject.query.filter_by(id =subject_id).first()
+        if not subject_to_edit:
+            return redirect(url_for('admin_dashboard'))
+        if request.method == 'POST':
+            name = request.form['name']
+            description = request.form['description']
+            subject_standard = request.form['subject_standard']
+            
+            subject_to_edit.name = name
+            subject_to_edit.description = description
+            subject_to_edit.subject_standard = subject_standard
+            
+            db.session.commit()
+            flash('Subject Edited successfully!', 'success')
+            return redirect(url_for('admin_dashboard')) 
+        else:
+            return render_template('sub_edit.html',subject = subject_to_edit)  
+    return redirect('/login') 
+
+@app.route('/delete_subject/<int:subject_id>',methods=['GET','POST'])
+def delete_subject(subject_id):
+    if 'admin' in session:
+        subject_to_delete = Subject.query.filter_by(id =subject_id).first()
+        if not subject_to_delete:
+            return redirect(url_for('admin_dashboard'))
+        if request.method == 'POST':
+            db.session.delete(subject_to_delete)
+            db.session.commit()
+            flash('Subject deleted successfully!', 'success')
+            return redirect('/admin_dashboard')
+        flash('The delete of the subject cannot be done at this moment')
+    return redirect('/login')
+
+
+@app.route('/view_subject/<int:sub_id>',methods=['GET','POST'])
+def view_subject(sub_id):
+    if 'admin' in session:
+        subject_to_view = Subject.query.filter_by(id =sub_id).first()
+        chapters = Chapter.query.filter_by(subject_id = sub_id).all()
+        return render_template('sub_view.html',subject = subject_to_view, chapters_created = chapters)
+    return redirect(url_for('login'))   
+
+      
+@app.route('/create_chapter/<int:sub_id>',methods=['GET','POST'])
+def add_chapter(sub_id):
+    if 'admin' in session:
+        if request.method == 'POST':
+            name = request.form['name']
+            description = request.form['description']
+            chapter_to_add =    Chapter(
+                name=name,
+                description=description,
+                subject_id = sub_id
+            )
+            db.session.add(chapter_to_add)
+            db.session.commit()
+            flash(' Chapter added successfully!', 'success')
+            return redirect(url_for('view_subject',sub_id = sub_id)) 
+        else:
+            return render_template('chapter_add.html',subject_id = sub_id)  
+    return redirect(url_for('login')) 
+   
+@app.route('/edit_chapter/<int:chapter_id>',methods=['GET','POST'])
+def edit_chapter(chapter_id):
+    if 'admin' in session:
+        chapter_to_edit = Chapter.query.filter_by(id =chapter_id).first()
+        if not chapter_to_edit:
+            return redirect(url_for('admin_dashboard')) 
+            return redirect(url_for('view_subject',sub_id = chapter_to_edit.subject_id))
+        if request.method == "POST":
+            name = request.form['name']
+            description = request.form['description']
+            
+            chapter_to_edit.name = name
+            chapter_to_edit.description = description
+            
+            db.session.commit()
+            flash('Subject Edited successfully!', 'success')
+            return redirect(url_for('view_subject',sub_id = chapter_to_edit.subject_id))
+             
+        else:
+            return render_template('chapter_edit.html',chapter = chapter_to_edit)  
+    return redirect('/login')    
+   
+   
+@app.route('/delete_chapter/<int:chapter_id>',methods=['GET','POST'])
+def delete_chapter(chapter_id):
+    if 'admin' in session:
+        chapter_to_delete = Chapter.query.filter_by(id =chapter_id).first()
+        if not chapter_to_delete:
+            return redirect(url_for('admin_dashboard'))
+        subject_id = chapter_to_delete.subject_id
+        db.session.delete(chapter_to_delete)
+        db.session.commit()
+        flash('chapter deleted successfully!', 'success')
+        return redirect('/admin_dashboard')
+    return redirect('/login') 
+
+# @app.route('/view_chapter/<int:chapter_id>',methods=['GET','POST'])
+# def view_chapter(sub_id,chapter_id):
+#     if 'admin' in session:
+#         chapter_to_view = Chapter.query.filter_by(id =chapter_id).first()
+#         quiz = Quiz.query.filter_by(chapter_id = chapter_id).all()
+#         return render_template('chapter_view.html',chapter = chapter_to_view, quiz_created = quiz)
+#     return redirect(url_for('login'))
+
+
+@app.route('/view_chapter/<int:chapter_id>',methods=['GET','POST'])
+def view_chapter(chapter_id):
+    if 'admin' in session:
+        chapter_to_view = Chapter.query.filter_by(id=chapter_id).first()
+        quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()
+        return render_template('chapter_view.html', 
+                             chapter=chapter_to_view, 
+                             quiz_created=quizzes)
+    return redirect(url_for('login'))
+
+   
+@app.route('/create_quiz/<int:chapter_id>',methods=['GET','POST'])
+def create_quiz(chapter_id):
+    if 'admin' in session:
+        if request.method == 'POST':
+            name = request.form['name']
+            time_str = request.form['quiz_time_duration']  
+            hours, minutes = map(int, time_str.split(':'))
+            quiz_time_duration = hours * 60 + minutes 
+            # quiz_time_duration = request.form['quiz_time_duration']
+            quiz_date = request.form['quiz_date']
+            feedback = request.form['feedback']      
+            quiz_date_formatted = datetime.strptime(quiz_date, "%Y-%m-%d").date() 
+            quiz_to_add =  Quiz(
+                name=name,
+                quiz_time_duration=quiz_time_duration,
+                quiz_date=quiz_date_formatted,
+                feedback=feedback,
+                chapter_id = chapter_id
+            )
+            db.session.add(quiz_to_add)
+            db.session.commit()
+            flash(' Quiz  added successfully!', 'success')
+            return redirect(url_for('view_chapter',sub_id = quiz_to_add.chapter.subject_id,chapter_id = chapter_id)) 
+        else:
+            return render_template('quiz_add.html',chapter_id = chapter_id)  
+    return redirect(url_for('login'))    
+
+# @app.route('/edit_quiz/<int:quiz_id>',methods=['GET','POST'])
+# def edit_quiz(quiz_id):
+#     if 'admin' in session:
+#         quiz_to_edit = Quiz.query.filter_by(id =quiz_id).first()
+#         if quiz_to_edit:
+#             if request.method == 'POST':
+#                 name = request.form['name']
+#                 quiz_time_duration = request.form['quiz_time_duration']
+#                 quiz_date = request.form['quiz_date']
+#                 feedback = request.form['feedback']      
+#                 quiz_date_formatted = datetime.strptime(quiz_date, "%Y-%m-%d").date() 
+                
+#                 quiz_to_edit.name  =  name,
+#                 quiz_to_edit.quiz_time_duration =  quiz_time_duration,
+#                 quiz_to_edit.quiz_date = quiz_date_formatted,
+#                 quiz_to_edit.feedback = feedback,
+                
+                
+                
+#                 db.session.commit()
+#                 flash(' Quiz  added successfully!', 'success')
+#                 return redirect(url_for('view_chapter',chapter_id = quiz_to_edit.chapter_id,)) 
+#             else:
+#                 return render_template('quiz_add.html',quiz_to_edit=quiz_to_edit)  
+#         return redirect('/view_chapter',sub_id = quiz_to_edit.chapter.subject_id,chapter_id = quiz_to_edit.chapter_id)
+#     return redirect(url_for('login'))     
+   
+@app.route('/edit_quiz/<int:quiz_id>',methods=['GET','POST'])
+def edit_quiz(quiz_id):
+    if 'admin' in session:
+        quiz_to_edit = Quiz.query.filter_by(id=quiz_id).first()
+        if not quiz_to_edit:
+            return redirect(url_for('admin_dashboard'))
+        if request.method == 'POST':
+            name = request.form['name']
+            quiz_time_duration = request.form['quiz_time_duration']
+            quiz_date = request.form['quiz_date']
+            feedback = request.form['feedback']      
+            quiz_date_formatted = datetime.strptime(quiz_date, "%Y-%m-%d").date()
+            
+            quiz_to_edit.name = name
+            quiz_to_edit.quiz_time_duration = quiz_time_duration
+            quiz_to_edit.quiz_date = quiz_date_formatted
+            quiz_to_edit.feedback = feedback
+            
+            db.session.commit()
+            flash('Quiz updated successfully!', 'success')
+            return redirect(url_for('view_chapter', chapter_id=quiz_to_edit.chapter_id))
+        else:
+            return render_template('quiz_edit.html', quiz_to_edit =quiz_to_edit)
+    return redirect(url_for('login'))
+
+# @app.route('/delete_quiz/<int:quiz_id>',methods=['GET','POST'])
+# def delete_quiz(quiz_id):
+#     if 'admin' in session:
+#         quiz_to_delete = Quiz.query.filter_by(id =quiz_id).first()
+#         if not quiz_to_delete:
+#             return redirect(url_for('admin_dashboard'))
+#         chapter_id = quiz_to_delete.chapter_id
+#         db.session.delete(quiz_to_delete)
+#         db.session.commit()
+#         flash('Quiz deleted successfully!', 'success')
+#         return redirect('/view_chapter',chapter_id = chapter_id)
+#     return redirect('/login')  
+
+
+@app.route('/delete_quiz/<int:quiz_id>',methods=['GET','POST'])
+def delete_quiz(quiz_id):
+    if 'admin' in session:
+        quiz_to_delete = Quiz.query.filter_by(id=quiz_id).first()
+        if not quiz_to_delete:
+            return redirect(url_for('admin_dashboard'))
+        chapter_id = quiz_to_delete.chapter_id
+        db.session.delete(quiz_to_delete)
+        db.session.commit()
+        flash('Quiz deleted successfully!', 'success')
+        return redirect(url_for('view_chapter', chapter_id=chapter_id))
+    return redirect(url_for('login'))
+
+
+@app.route('/view_quiz/<int:quiz_id>',methods=['GET','POST'])
+def view_quiz(quiz_id): 
+    if 'admin' in session:
+        quiz_to_view = Quiz.query.filter_by(id =quiz_id).first()
+        questions = Question.query.filter_by(quiz_id = quiz_id).all()
+        return render_template('quiz_view.html',quiz = quiz_to_view, questions_created = questions)
+    return redirect(url_for('login'))
+
+@app.route('/create_question/<int:quiz_id>', methods=['GET', 'POST'])
+def create_question(quiz_id):
+    if 'admin' in session:
+        if request.method == 'POST':
+            qsn = request.form['qsn']
+            opt1 = request.form['opt1']
+            opt2 = request.form['opt2']
+            opt3 = request.form['opt3']
+            opt4 = request.form['opt4']
+            crct_ans = request.form['crct_ans']
+            
+            question_to_add = Question(
+                qsn=qsn,
+                opt1=opt1,
+                opt2=opt2,
+                opt3=opt3,
+                opt4=opt4,
+                crct_ans=crct_ans,
+                quiz_id=quiz_id
+            )
+            db.session.add(question_to_add)
+            db.session.commit()
+            flash('Question added successfully!', 'success')
+            return redirect(url_for('view_quiz', quiz_id=quiz_id))
+        else:
+            return render_template('question_add.html', quiz_id=quiz_id)
+    return redirect(url_for('login'))
+
+@app.route('/edit_question/<int:question_id>', methods=['GET', 'POST'])
+def edit_question(question_id):
+    if 'admin' in session:
+        question_to_edit = Question.query.filter_by(id=question_id).first()
+        if not question_to_edit:
+            return redirect(url_for('admin_dashboard'))
+        if request.method == 'POST':
+            qsn = request.form['qsn']
+            opt1 = request.form['opt1']
+            opt2 = request.form['opt2']
+            opt3 = request.form['opt3']
+            opt4 = request.form['opt4']
+            crct_ans = request.form['crct_ans']
+            
+            question_to_edit.qsn = qsn
+            question_to_edit.opt1 = opt1
+            question_to_edit.opt2 = opt2
+            question_to_edit.opt3 = opt3
+            question_to_edit.opt4 = opt4
+            question_to_edit.crct_ans = crct_ans
+            
+            db.session.commit()
+            flash('Question updated successfully!', 'success')
+            return redirect(url_for('view_quiz', quiz_id=question_to_edit.quiz_id))
+        else:
+            return render_template('question_edit.html', question=question_to_edit)
+    return redirect(url_for('login'))
+
+@app.route('/delete_question/<int:question_id>', methods=['GET', 'POST'])
+def delete_question(question_id):
+    if 'admin' in session:
+        question_to_delete = Question.query.filter_by(id=question_id).first()
+        if not question_to_delete:
+            return redirect(url_for('admin_dashboard'))
+        quiz_id = question_to_delete.quiz_id
+        db.session.delete(question_to_delete)
+        db.session.commit()
+        flash('Question deleted successfully!', 'success')
+        return redirect(url_for('view_quiz', quiz_id=quiz_id))
+    return redirect(url_for('login'))
+
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)
