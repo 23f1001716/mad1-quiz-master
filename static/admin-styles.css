@@ -167,6 +167,31 @@ body {
     max-width: 300px;
 }
 
+
+
+.card {
+    border: none;
+    border-radius: 10px;
+     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
+    margin-bottom: 20px;
+}
+
+.card-title {
+    color: var(--dark);
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.display-4 {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.img-fluid {
+    border-radius: 10px;
+}
+
+
 /* Responsive Adjustments */
 /* @media (max-width: 768px) {
     .dashboard-header {
@@ -185,3 +210,22 @@ body {
         width: 100%;
     }
 } */
+.badge {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.search-section {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.btn-sm {
+    padding: 5px 10px;
+}

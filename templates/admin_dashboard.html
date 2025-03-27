@@ -13,7 +13,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <img src="static\logo.png" alt="QuizMaster Logo" class="nav-logo">
+                <img src="static\logo.png" alt="QuizMaster" class="nav-logo">
                 QuizMaster Admin
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -22,17 +22,17 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#summary">
+                        <a class="nav-link" href="{{url_for('admin_summary')}}">
                             <i class="bi bi-graph-up"></i> Summary
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="/view_subjects">
-                            <i class="bi bi-book"></i> Subjects
+                        <a class="nav-link" href="{{ url_for('user_management') }}">
+                            <i class="bi bi-people"></i> Users
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('login') }}">
+                        <a class="nav-link" href="{{ url_for('logout') }}">
                             <i class="bi bi-box-arrow-right"></i> Logout
                         </a>
                     </li>
@@ -119,6 +119,46 @@
                     {% endif %}
                 </tbody>
             </table>
+        </div>
+
+        <!-- Scores Table Section -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Quiz Attempts</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>User Name</th>
+                                <th>Quiz Name</th>
+                                <th>Score</th>
+                                <th>Percentage</th>
+                                <th>Attempted On</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if all_scores %}
+                                {% for score_entry in all_scores %}
+                                <tr>
+                                    <td>{{ score_entry.user.username }}</td>
+                                    <td>{{ score_entry.quiz.name }}</td>
+                                    
+                                    <td>{{ score_entry.score }}</td>
+                                    <td>{{ score_entry.percentage }}%</td>
+                                    <td>{{ score_entry.quiz_taken_timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center">No quiz attempts recorded yet.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 

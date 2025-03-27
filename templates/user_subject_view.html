@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subject View - QuizMaster</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='user_styles.css') }}">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="QuizMaster Logo" class="nav-logo">
+                QuizMaster User: {{ user.username }}
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}">
+                            <i class="bi bi-house"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('user_history') }}">
+                            <i class="bi bi-clock-history"></i> History
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container main-content">
+        <!-- Header Section -->
+        <div class="dashboard-header">
+            <div>
+                <h1>{{ subject.name }}</h1>
+                <p class="text-muted mb-0">{{ subject.description }}</p>
+                <p class="badge bg-primary mt-2">
+                    Standard: 
+                    {% if subject.subject_standard == 1 %}
+                        High School
+                    {% elif subject.subject_standard == 2 %}
+                        Bachelor's
+                    {% elif subject.subject_standard == 3 %}
+                        Master's
+                    {% else %}
+                        Ph.D.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Chapters and Quizzes -->
+        <div class="row">
+            {% if chapters %}
+                {% for chapter in chapters %}
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-book"></i> 
+                                Chapter: {{ chapter.name }}
+                            </h5>
+                            <p class="text-muted mb-0 mt-2">{{ chapter.description }}</p>
+                        </div>
+                        <div class="card-body">
+                            <!-- Quizzes for this chapter -->
+                            {% if chapter.chap_quiz %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Quiz Name</th>
+                                                <th>Duration</th>
+                                                <th>Date</th>
+                                                <th>Instructions</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for quiz in chapter.chap_quiz %}
+                                            <tr>
+                                                <td>{{ quiz.name }}</td>
+                                                <td>
+                                                    
+                                                    {% set hours = (quiz.quiz_time_duration | int // 60) %}
+                                                    {% set minutes = (quiz.quiz_time_duration | int % 60) %}
+                                                    {% if hours > 0 %}{{ hours }}h{% endif %}
+                                                    {% if minutes > 0 %}{{ minutes }}m{% endif %}
+                                                </td>
+                                                <td>{{ quiz.quiz_date.strftime('%Y-%m-%d') }}</td>
+                                                <td>
+                                                    {% if quiz.feedback %}
+                                                        {{ quiz.feedback }}
+                                                    {% else %}
+                                                        No specific instructions
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if quiz.quiz_date <= today %}
+                                                        <a href="{{ url_for('start_quiz', quiz_id=quiz.id) }}" 
+                                                           class="btn btn-success btn-sm">
+                                                            <i class="bi bi-play-circle"></i> Start Quiz
+                                                        </a>
+                                                    {% else %}
+                                                        <button class="btn btn-secondary btn-sm" disabled>
+                                                            <i class="bi bi-clock"></i> Available on {{ quiz.quiz_date.strftime('%Y-%m-%d') }}
+                                                        </button>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% else %}
+                                            <tr>
+                                                <td colspan="5" class="text-center">No quizzes available for this chapter.</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="text-muted text-center">No quizzes available for this chapter.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info text-center">
+                        <i class="bi bi-info-circle"></i> No chapters available for this subject yet.
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center mt-4">
+            <a href="{{ url_for('dashboard') }}" class="back-link">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

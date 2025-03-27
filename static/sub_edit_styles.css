@@ -30,9 +30,9 @@ body {
     transition: transform 0.3s ease;
 }
 
-.subject-logo:hover {
+/* .subject-logo:hover {
     transform: scale(1.1);
-}
+} */
 
 .form-title {
     color: var(--primary);
@@ -79,24 +79,24 @@ textarea.form-control {
     transition: all 0.3s ease;
 }
 
-.create-btn:hover {
+/* .create-btn:hover {
     background-color: var(--secondary);
     transform: translateY(-2px);
-}
+} */
 
 .back-link {
     color: var(--primary);
-    text-decoration: none;
+    /* text-decoration: none; */
     font-weight: 600;
-    transition: all 0.3s ease;
+    /* transition: all 0.3s ease; */
     display: inline-block;
     padding: 5px 10px;
 }
 
-.back-link:hover {
+/* .back-link:hover {
     color: var(--secondary);
     transform: translateX(-5px);
-}
+} */
 
 .alert {
     margin-bottom: 20px;

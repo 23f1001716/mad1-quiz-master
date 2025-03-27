@@ -52,7 +52,7 @@
                                    class="form-control" 
                                    id="duration" 
                                    name="quiz_time_duration" 
-                                   value="{{ '%02d:%02d' % (quiz_to_edit.quiz_time_duration // 60, quiz_to_edit.quiz_time_duration % 60) }}"
+                                   value="{{ '%02d:%02d' % (quiz_to_edit.quiz_time_duration | int // 60, quiz_to_edit.quiz_time_duration  | int % 60) }}"
                                    required>
                         </div>
 

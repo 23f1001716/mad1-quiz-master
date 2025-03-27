@@ -15,14 +15,14 @@
         <div class="row justify-content-center">
             <div class="col-12 col-md-6 col-lg-5">
                 <div class="subject-card">
-                    <!-- Header -->
+                    
                     <div class="text-center mb-4">
                         <img src="static\logo.png" alt="QuizMaster Logo" class="subject-logo">
                         <h2 class="form-title">Edit Chapter</h2>
                     </div>
 
                     <form action="/edit_chapter/{{chapter.id}}"  method="POST">
-                        <!-- Subject Name -->
+                       
                         <div class="mb-3">
                             <label for="subjectName" class="form-label">
                                 <i class="bi bi-book"></i> Subject Name
@@ -36,7 +36,7 @@
                                    value="{{ chapter.name }}">
                         </div>
 
-                        <!-- Subject Description -->
+                       
                         <div class="mb-3">
                             <label for="description" class="form-label">
                                 <i class="bi bi-card-text"></i> Description
@@ -63,12 +63,12 @@
                             {% endif %}
                         {% endwith %}
 
-                        <!-- Submit Button -->
+                        
                         <button type="submit" class="create-btn">
                             <i class="bi bi-plus-circle"></i> Edit chapter
                         </button>
 
-                        <!-- Back Link -->
+                        
                         <div class="text-center mt-3">
                             <a href="{{ url_for('admin_dashboard') }}" class="back-link">
                                 <i class="bi bi-arrow-left"></i> Back to Dashboard
