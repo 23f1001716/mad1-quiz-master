@@ -6,8 +6,8 @@
 }
 
 body {
-    /* background: linear-gradient(135deg, #8b5bd7, #ff6690, #ff946b, #ffc85a, #f9f871); */
-    background-color: rgb(103, 124, 120);
+    background: linear-gradient(135deg,rgb(36, 127, 110) , #254147, #3c7c7c, #5fa9a2, #73f3dd);  
+    /* background-color: #76cfc6; */
     min-height: 100vh;
 }
 
@@ -20,9 +20,8 @@ body {
     height: 40px;
     transition: transform 0.3s ease;
 }
-
-.navbar-brand:hover img {
-    transform: rotate(360deg);
+.navbar-brand img:hover {
+    transform: scale(1.1);
 }
 
 .nav-link {

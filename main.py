@@ -155,13 +155,39 @@ def logout():
     session.pop('user_id')
     return redirect(url_for('login'))
 
-@app.route("/admin_dashboard",methods=['GET'])
+# @app.route("/admin_dashboard",methods=['GET'])
+# def admin_dashboard():
+#     if 'admin' in session:
+#         subs = Subject.query.all()
+#         all_scores = Scores.query.order_by(Scores.quiz_taken_timestamp.desc()).all()
+#         return render_template('admin_dashboard.html',subject_created = subs, all_scores=all_scores)
+
+
+@app.route("/admin_dashboard", methods=['GET'])
 def admin_dashboard():
     if 'admin' in session:
-        subs = Subject.query.all()
-        all_scores = Scores.query.order_by(Scores.quiz_taken_timestamp.desc()).all()
-        return render_template('admin_dashboard.html',subject_created = subs, all_scores=all_scores)
-    
+        # Get search query
+        search_query = request.args.get('search', '').strip()
+        
+        # Filter subjects if search query exists
+        if search_query:
+            subjects = Subject.query.filter(
+                db.or_(
+                    Subject.name.ilike(f'%{search_query}%'),
+                    Subject.description.ilike(f'%{search_query}%')
+                )
+            ).all()
+        else:
+            subjects = Subject.query.all()
+
+        # Get recent scores
+        all_scores = Scores.query.order_by(Scores.quiz_taken_timestamp.desc()).limit(10).all()
+        
+        return render_template('admin_dashboard.html',
+                             subject_created=subjects,
+                             all_scores=all_scores,
+                             search_query=search_query)
+    return redirect(url_for('login'))    
 
 @app.route('/user_management', methods=['GET'])
 def user_management():
@@ -255,13 +281,60 @@ def delete_subject(subject_id):
     return redirect('/login')
 
 
-@app.route('/view_subject/<int:sub_id>',methods=['GET','POST'])
+
+# @app.route('/view_subject/<int:sub_id>',methods=['GET','POST'])
+# def view_subject(sub_id):
+#     if 'admin' in session:
+#         subject_to_view = Subject.query.filter_by(id =sub_id).first()
+        
+#         search_query = request.args.get('search', '').strip()
+        
+#         # Filter subjects if search query exists
+#         if search_query:
+#             chapters = Chapter.query.filter(
+#                 db.or_(
+#                     Chapter.name.ilike(f'%{search_query}%'),
+#                     Chapter.description.ilike(f'%{search_query}%')
+#                 )
+#             ).all()
+#         else:
+            
+#             chapters = Chapter.query.filter_by(subject_id = sub_id).all()
+#         return render_template('sub_view.html',subject = subject_to_view, chapters_created = chapters,search_query=search_query)
+#     return redirect(url_for('login'))   
+
+@app.route('/view_subject/<int:sub_id>', methods=['GET', 'POST'])
 def view_subject(sub_id):
     if 'admin' in session:
-        subject_to_view = Subject.query.filter_by(id =sub_id).first()
-        chapters = Chapter.query.filter_by(subject_id = sub_id).all()
-        return render_template('sub_view.html',subject = subject_to_view, chapters_created = chapters)
-    return redirect(url_for('login'))   
+        subject_to_view = Subject.query.filter_by(id=sub_id).first()
+        if not subject_to_view:
+            flash('Subject not found!', 'error')
+            return redirect(url_for('admin_dashboard'))
+        
+        search_query = request.args.get('search', '').strip()
+        
+        # Base query to always filter by subject_id
+        chapters_query = Chapter.query.filter_by(subject_id=sub_id)
+        
+        # Apply search filter if search query exists
+        if search_query:
+            chapters = chapters_query.filter(
+                db.or_(
+                    Chapter.name.ilike(f'%{search_query}%'),
+                    Chapter.description.ilike(f'%{search_query}%')
+                )
+            ).all()
+        else:
+            chapters = chapters_query.all()
+
+        return render_template('sub_view.html',
+                             subject=subject_to_view,
+                             chapters_created=chapters,
+                             search_query=search_query)
+    return redirect(url_for('login'))
+
+
+
 
       
 @app.route('/create_chapter/<int:sub_id>',methods=['GET','POST'])
@@ -319,15 +392,46 @@ def delete_chapter(chapter_id):
         return redirect('/admin_dashboard')
     return redirect('/login') 
 
-@app.route('/view_chapter/<int:chapter_id>',methods=['GET','POST'])
+# @app.route('/view_chapter/<int:chapter_id>',methods=['GET','POST'])
+# def view_chapter(chapter_id):
+#     if 'admin' in session:
+#         chapter_to_view = Chapter.query.filter_by(id=chapter_id).first()
+#         quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()
+#         return render_template('chapter_view.html', 
+#                              chapter=chapter_to_view, 
+#                              quiz_created=quizzes)
+#     return redirect(url_for('login'))
+
+@app.route('/view_chapter/<int:chapter_id>', methods=['GET', 'POST'])
 def view_chapter(chapter_id):
     if 'admin' in session:
         chapter_to_view = Chapter.query.filter_by(id=chapter_id).first()
-        quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()
-        return render_template('chapter_view.html', 
-                             chapter=chapter_to_view, 
-                             quiz_created=quizzes)
+        if not chapter_to_view:
+            flash('Chapter not found!', 'error')
+            return redirect(url_for('admin_dashboard'))
+
+        search_query = request.args.get('search', '').strip()
+        
+        # Base query filtered by chapter_id
+        quiz_query = Quiz.query.filter_by(chapter_id=chapter_id)
+        
+        # Apply search if query exists
+        if search_query:
+            quizzes = quiz_query.filter(
+                db.or_(
+                    Quiz.name.ilike(f'%{search_query}%'),
+                    Quiz.feedback.ilike(f'%{search_query}%')
+                )
+            ).all()
+        else:
+            quizzes = quiz_query.all()
+
+        return render_template('chapter_view.html',
+                             chapter=chapter_to_view,
+                             quiz_created=quizzes,
+                             search_query=search_query)
     return redirect(url_for('login'))
+
    
 @app.route('/create_quiz/<int:chapter_id>',methods=['GET','POST'])
 def create_quiz(chapter_id):
