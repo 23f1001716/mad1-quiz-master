@@ -9,12 +9,11 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/user_styles.css') }}">
 </head>
 <body>
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <img src="{{ url_for('static', filename='logo.png') }}" alt="QuizMaster Logo" class="nav-logo">
-                QuizMaster User: {{ user.username }}
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="QuizMaster Logo" class="nav-logo">
+                QuizMaster User : {{ user.username }}
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -41,9 +40,8 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
+
     <div class="container main-content">
-        <!-- Header Section -->
         <div class="dashboard-header">
             <div>
                 <h1>{{ subject.name }}</h1>
@@ -63,7 +61,7 @@
             </div>
         </div>
 
-        <!-- Flash Messages -->
+    
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -75,7 +73,6 @@
             {% endif %}
         {% endwith %}
 
-        <!-- Chapters and Quizzes -->
         <div class="row">
             {% if chapters %}
                 {% for chapter in chapters %}
@@ -89,7 +86,6 @@
                             <p class="text-muted mb-0 mt-2">{{ chapter.description }}</p>
                         </div>
                         <div class="card-body">
-                            <!-- Quizzes for this chapter -->
                             {% if chapter.chap_quiz %}
                                 <div class="table-responsive">
                                     <table class="table table-hover">
@@ -122,11 +118,15 @@
                                                     {% endif %}
                                                 </td>
                                                 <td>
-                                                    {% if quiz.quiz_date <= today %}
+                                                    {% if quiz.quiz_date == today %}
                                                         <a href="{{ url_for('start_quiz', quiz_id=quiz.id) }}" 
                                                            class="btn btn-success btn-sm">
                                                             <i class="bi bi-play-circle"></i> Start Quiz
                                                         </a>
+                                                    {% elif quiz.quiz_date < today %}
+                                                        <button class="btn btn-secondary btn-sm" disabled>
+                                                            <i class="bi bi-clock"></i> Quiz Expired
+                                                        </button>
                                                     {% else %}
                                                         <button class="btn btn-secondary btn-sm" disabled>
                                                             <i class="bi bi-clock"></i> Available on {{ quiz.quiz_date.strftime('%Y-%m-%d') }}
@@ -157,8 +157,6 @@
                 </div>
             {% endif %}
         </div>
-
-        <!-- Back Button -->
         <div class="text-center mt-4">
             <a href="{{ url_for('dashboard') }}" class="back-link">
                 <i class="bi bi-arrow-left"></i> Back to Dashboard

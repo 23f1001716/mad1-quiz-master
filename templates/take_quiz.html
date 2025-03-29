@@ -10,11 +10,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/user_styles.css') }}">
 </head>
 <body>
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <img src="{{ url_for('static', filename='logo.png') }}" alt="QuizMaster Logo" class="nav-logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="QuizMaster Logo" class="nav-logo">
                 Quiz: {{ quiz.name }}
             </a>
             <div class="ms-auto">
@@ -29,15 +28,13 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <div class="container main-content">
-        <!-- Quiz Information -->
+
         <div class="quiz-header mb-4">
             <h2>{{ quiz.name }}</h2>
             <p class="text-muted">{{ quiz.feedback }}</p>
         </div>
 
-        <!-- Quiz Form -->
         <form action="{{ url_for('submit_quiz', quiz_id=quiz.id) }}" method="POST">
             {% for question in questions %}
             <div class="card mb-4">

@@ -13,14 +13,12 @@
         <div class="row justify-content-center">
             <div class="col-12 col-md-6 col-lg-5">
                 <div class="subject-card">
-                    <!-- Header -->
                     <div class="text-center mb-4">
-                        <img src="{{ url_for('static', filename='logo.png') }}" alt="QuizMaster Logo" class="subject-logo">
+                        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="QuizMaster Logo" class="subject-logo">
                         <h2 class="form-title">Create New Subject</h2>
                     </div>
 
                     <form action='/create_subject' method="POST">
-                        <!-- Subject Name -->
                         <div class="mb-3">
                             <label for="subjectName" class="form-label">
                                 <i class="bi bi-book"></i> Subject Name
@@ -32,8 +30,6 @@
                                    placeholder="Enter subject name"
                                    required>
                         </div>
-
-                        <!-- Subject Description -->
                         <div class="mb-3">
                             <label for="description" class="form-label">
                                 <i class="bi bi-card-text"></i> Description
@@ -45,8 +41,6 @@
                                       placeholder="Enter subject description"
                                       required></textarea>
                         </div>
-
-                        <!-- Subject Standard -->
                         <div class="mb-4">
                             <label for="standard" class="form-label">
                                 <i class="bi bi-mortarboard"></i> Standard
@@ -62,8 +56,6 @@
                                 <option value="4">Ph.D.</option>
                             </select>
                         </div>
-
-                        <!-- Flash Messages -->
                         {% with messages = get_flashed_messages(with_categories=true) %}
                             {% if messages %}
                                 {% for category, message in messages %}
@@ -75,12 +67,10 @@
                             {% endif %}
                         {% endwith %}
 
-                        <!-- Submit Button -->
                         <button type="submit" class="create-btn">
                             <i class="bi bi-plus-circle"></i> Create Subject
                         </button>
 
-                        <!-- Back Link -->
                         <div class="text-center mt-3">
                             <a href="{{ url_for('admin_dashboard') }}" class="back-link">
                                 <i class="bi bi-arrow-left"></i> Back to Dashboard

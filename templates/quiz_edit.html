@@ -13,9 +13,8 @@
         <div class="row justify-content-center">
             <div class="col-12 col-md-6 col-lg-5">
                 <div class="subject-card">
-                    <!-- Header -->
                     <div class="text-center mb-4">
-                        <img src="{{ url_for('static', filename='logo.png') }}" alt="QuizMaster Logo" class="subject-logo">
+                        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="QuizMaster Logo" class="subject-logo">
                         <h2 class="form-title">Edit Quiz: {{quiz_to_edit.name}}</h2>
                     </div>
                     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -30,7 +29,6 @@
                 {% endwith %}
 
                     <form action="/edit_quiz/{{quiz_to_edit.id}}" method="POST">
-                        <!-- Quiz Name -->
                         <div class="mb-3">
                             <label for="quizName" class="form-label">
                                 <i class="bi bi-journal-check"></i> Quiz Name
@@ -43,7 +41,6 @@
                                    required>
                         </div>
 
-                        <!-- Quiz Duration -->
                         <div class="mb-3">
                             <label for="duration" class="form-label">
                                 <i class="bi bi-clock"></i> Duration (HH:MM)
@@ -56,7 +53,6 @@
                                    required>
                         </div>
 
-                        <!-- Quiz Date -->
                         <div class="mb-3">
                             <label for="quizDate" class="form-label">
                                 <i class="bi bi-calendar-event"></i> Quiz Date
@@ -68,8 +64,6 @@
                                    value="{{ quiz_to_edit.quiz_date.strftime('%Y-%m-%d') }}"
                                    required>
                         </div>
-
-                        <!-- Feedback -->
                         <div class="mb-3">
                             <label for="feedback" class="form-label">
                                 <i class="bi bi-chat-dots"></i> Instructions
@@ -80,15 +74,10 @@
                                       rows="3">{{ quiz_to_edit.feedback }}</textarea>
                         </div>
 
-                        <!-- Flash Messages -->
-                       
-
-                        <!-- Submit Button -->
                         <button type="submit" class="create-btn">
                             <i class="bi bi-save"></i> Save Changes
                         </button>
 
-                        <!-- Back Link -->
                         <div class="text-center mt-3">
                             <a href="{{ url_for('view_chapter', chapter_id=quiz_to_edit.chapter_id) }}" class="back-link">
                                 <i class="bi bi-arrow-left"></i> Back to Chapter

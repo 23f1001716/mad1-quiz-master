@@ -13,14 +13,14 @@
         <div class="row justify-content-center">
             <div class="col-12 col-md-6 col-lg-5">
                 <div class="subject-card">
-                    <!-- Header -->
+
                     <div class="text-center mb-4">
-                        <img src="{{ url_for('static', filename='logo.png') }}" alt="QuizMaster Logo" class="subject-logo">
+                        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="QuizMaster Logo" class="subject-logo">
                         <h2 class="form-title">Edit Question</h2>
                     </div>
 
                     <form action="/edit_question/{{question.id}}" method="POST">
-                        <!-- Question -->
+
                         <div class="mb-3">
                             <label for="question" class="form-label">
                                 <i class="bi bi-question-circle"></i> Question
@@ -32,7 +32,6 @@
                                    required>{{ question.qsn }}</textarea>
                         </div>
 
-                        <!-- Option 1 -->
                         <div class="mb-3">
                             <label for="opt1" class="form-label">
                                 <i class="bi bi-1-circle"></i> Option 1
@@ -45,7 +44,6 @@
                                    value="{{ question.opt1 }}">
                         </div>
 
-                        <!-- Option 2 -->
                         <div class="mb-3">
                             <label for="opt2" class="form-label">
                                 <i class="bi bi-2-circle"></i> Option 2
@@ -58,7 +56,6 @@
                                    value="{{ question.opt2 }}">
                         </div>
 
-                        <!-- Option 3 -->
                         <div class="mb-3">
                             <label for="opt3" class="form-label">
                                 <i class="bi bi-3-circle"></i> Option 3
@@ -70,7 +67,6 @@
                                    value="{{ question.opt3 }}">
                         </div>
 
-                        <!-- Option 4 -->
                         <div class="mb-3">
                             <label for="opt4" class="form-label">
                                 <i class="bi bi-4-circle"></i> Option 4
@@ -82,7 +78,6 @@
                                    value="{{ question.opt4 }}">
                         </div>
 
-                        <!-- Correct Answer -->
                         <div class="mb-3">
                             <label for="crct_ans" class="form-label">
                                 <i class="bi bi-check-circle"></i> Correct Answer
@@ -99,7 +94,6 @@
                             </select>
                         </div>
 
-                        <!-- Flash Messages -->
                         {% with messages = get_flashed_messages(with_categories=true) %}
                             {% if messages %}
                                 {% for category, message in messages %}
@@ -111,12 +105,10 @@
                             {% endif %}
                         {% endwith %}
 
-                        <!-- Submit Button -->
                         <button type="submit" class="create-btn">
                             <i class="bi bi-save"></i> Save Changes
                         </button>
 
-                        <!-- Back Link -->
                         <div class="text-center mt-3">
                             <a href="{{ url_for('view_quiz', quiz_id=question.quiz_id) }}" class="back-link">
                                 <i class="bi bi-arrow-left"></i> Back to Quiz

@@ -1,12 +1,12 @@
-:root {
+/* :root {
     --primary: #8b5bd7;
     --secondary: #64baaa;
     --light: #c4fcf0;
     --dark: #4c8076;
-}
+} */
 
-body {
-    /* background: linear-gradient(135deg, #8b5bd7, #ff6690, #ff946b, #ffc85a, #f9f871); */
+/* body {
+     background: linear-gradient(135deg, #8b5bd7, #ff6690, #ff946b, #ffc85a, #f9f871); 
     background-color: #d2fff5;
     min-height: 100vh;
     display: flex;
@@ -101,9 +101,107 @@ textarea.form-control {
 .alert {
     margin-bottom: 20px;
     border-radius: 8px;
-}
+}*/
 
 /* Responsive Adjustments */
+/* @media (max-width: 768px) {
+    .subject-card {
+        padding: 20px;
+        margin: 15px;
+    }
+
+    .form-title {
+        font-size: 1.5rem;
+    }
+
+    .subject-logo {
+        width: 50px;
+        height: 50px;
+    }
+}  */
+
+
+body {
+    background-color: #d2fff5;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 0;
+}
+
+.subject-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.subject-logo {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 15px;
+    transition: transform 0.3s ease;
+}
+
+.form-title {
+    color: #8b5bd7;
+    font-weight: 700;
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+}
+
+.form-control {
+    border-radius: 8px;
+    padding: 10px;
+    border: 1px solid #eee;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #8b5bd7;
+    box-shadow: 0 0 0 0.2rem rgba(139, 91, 215, 0.25);
+}
+
+.form-label {
+    color: #4c8076;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.form-label i {
+    margin-right: 5px;
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.create-btn {
+    background-color: #8b5bd7;
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.back-link {
+    color: #8b5bd7;
+    font-weight: 600;
+    display: inline-block;
+    padding: 5px 10px;
+}
+
+.alert {
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
 @media (max-width: 768px) {
     .subject-card {
         padding: 20px;

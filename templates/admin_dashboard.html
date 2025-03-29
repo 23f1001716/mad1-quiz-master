@@ -13,7 +13,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <img src="static\logo.png" alt="QuizMaster" class="nav-logo">
+                <img src="static\images\logo.png" alt="QuizMaster" class="nav-logo">
                 QuizMaster Admin
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -48,14 +48,13 @@
 
    
     <div class="container main-content">
-      
+
         <div class="dashboard-header">
             <h1>Subject Management</h1>
             <a href="{{ url_for('create_subject') }}" class="add-subject-btn">
                 <i class="bi bi-plus-lg"></i> Add New Subject
             </a>
         </div>
-
         
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -68,8 +67,6 @@
             {% endif %}
         {% endwith %}
 
-
-        <!-- Search Section -->
 <div class="card mb-4">
     <div class="card-body">
         <form action="{{ url_for('admin_dashboard') }}" method="GET" class="row">
@@ -89,7 +86,6 @@
     </div>
 </div>
 
-<!-- Search Results Info -->
 {% if search_query %}
 <div class="alert alert-info alert-dismissible fade show" role="alert">
     Showing results for: "{{ search_query }}"
@@ -98,10 +94,7 @@
     </a>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
-{% endif %}
-        
-
-        
+{% endif %}        
         <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
@@ -157,9 +150,7 @@
                     {% endif %}
                 </tbody>
             </table>
-        </div>
-
-      
+        </div>     
         <div class="card mt-4">
             <div class="card-header">
                 <h5 class="mb-0">Recent Quiz Attempts</h5>

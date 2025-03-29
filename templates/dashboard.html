@@ -9,11 +9,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/user_styles.css') }}">
 </head>
 <body>
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <img src="{{ url_for('static', filename='logo.png') }}" alt="QuizMaster Logo" class="nav-logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="QuizMaster Logo" class="nav-logo">
                 Welcome, {{ user.username }}!
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -41,13 +40,10 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <div class="container main-content">
-        <!-- Search and Filter Section -->
         <div class="card mb-4">
             <div class="card-body">
                 <div class="row">
-                    <!-- Search Bar -->
                     <div class="col-md-8 mb-3 mb-md-0">
                         <form action="{{ url_for('dashboard') }}" method="GET" class="d-flex">
                             <input type="text" 
@@ -61,7 +57,6 @@
                             </button>
                         </form>
                     </div>
-                    <!-- Standard Filter -->
                     <div class="col-md-4">
                         <form action="{{ url_for('dashboard') }}" method="GET">
                             <input type="hidden" name="search" value="{{ search_query }}">
@@ -78,7 +73,6 @@
             </div>
         </div>
 
-        <!-- Filter/Search Results Info -->
         {% if search_query or selected_standard != 'all' %}
         <div class="alert alert-info alert-dismissible fade show mb-4" role="alert">
             {% if search_query %}
@@ -97,7 +91,6 @@
         </div>
         {% endif %}
 
-        <!-- Subjects Grid -->
         <div class="row">
             {% if subjects %}
                 {% for subject in subjects %}
