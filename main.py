@@ -34,7 +34,6 @@ class User(db.Model):
 class Subject(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60),nullable=False)
-    #ser_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     description = db.Column(db.String(120), nullable=False)
     sub_chapter = db.relationship('Chapter', back_populates = 'subjects',cascade = 'all, delete-orphan')
     subject_standard = db.Column(db.Integer)
@@ -618,7 +617,7 @@ def admin_summary():
     participation_counts = [len(quiz.score) for quiz in quizzes]
     
     plt.bar(quiz_names, participation_counts)
-    plt.xticks(rotation=45)
+    plt.xticks(rotation=75)
     plt.title('Quiz Participation Summary')
     plt.xlabel('Quizzes')
     plt.ylabel('Number of Participants')
@@ -647,7 +646,7 @@ def admin_summary():
         avg_scores.append(avg_score)
     
     plt.bar(subject_names, avg_scores)
-    plt.xticks(rotation=45)
+    plt.xticks(rotation=75)
     plt.title('Average Score per Subject')
     plt.xlabel('Subjects')
     plt.ylabel('Average Score')
