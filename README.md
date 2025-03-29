@@ -33,10 +33,10 @@ python -m venv venv
 
 ### Activate Virtual environment :
 
-## Windows
+### Windows
 venv\Scripts\activate
 
-## Linux/Mac
+### Linux/Mac
 source venv/bin/activate
 
 ## install dependencies :
@@ -45,7 +45,7 @@ pip install -r requirements.txt
 ## Run the Application :
 python main.py
 
-## The application will be available at localhost:5000 ( unless the port is already being used )
+### The application will be available at localhost:5000 ( unless the port is already being used )
 
 
 
