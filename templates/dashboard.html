@@ -6,7 +6,6 @@
     <title>Dashboard - QuizMaster</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
-    
     <link rel="stylesheet" href="{{ url_for('static', filename='css/user_styles.css') }}">
 </head>
 <body>
@@ -22,7 +21,6 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <!-- In dashboard.html navbar -->
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('user_history') }}">
                             <i class="bi bi-clock-history"></i> History
@@ -33,6 +31,11 @@
                             <i class="bi bi-box-arrow-right"></i> Logout
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('user_profile') }}">
+                            <i class="bi bi-person-circle"></i> 
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -40,23 +43,63 @@
 
     <!-- Main Content -->
     <div class="container main-content">
-        <!-- Search Bar -->
-        <div class="search-section mb-4">
-            <form action="{{ url_for('dashboard') }}" method="GET" class="d-flex">
-                <input type="text" 
-                       name="search" 
-                       class="form-control me-2" 
-                       placeholder="Search subjects..."
-                       value="{{ search_query }}">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-search"></i> Search
-                </button>
-            </form>
+        <!-- Search and Filter Section -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <!-- Search Bar -->
+                    <div class="col-md-8 mb-3 mb-md-0">
+                        <form action="{{ url_for('dashboard') }}" method="GET" class="d-flex">
+                            <input type="text" 
+                                   name="search" 
+                                   class="form-control me-2" 
+                                   placeholder="Search subjects..."
+                                   value="{{ search_query }}">
+                            <input type="hidden" name="standard" value="{{ selected_standard }}">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search"></i> Search
+                            </button>
+                        </form>
+                    </div>
+                    <!-- Standard Filter -->
+                    <div class="col-md-4">
+                        <form action="{{ url_for('dashboard') }}" method="GET">
+                            <input type="hidden" name="search" value="{{ search_query }}">
+                            <select class="form-select" name="standard" onchange="this.form.submit()">
+                                <option value="all" {% if selected_standard == 'all' %}selected{% endif %}>All Standards</option>
+                                <option value="1" {% if selected_standard == '1' %}selected{% endif %}>High School</option>
+                                <option value="2" {% if selected_standard == '2' %}selected{% endif %}>Bachelor's</option>
+                                <option value="3" {% if selected_standard == '3' %}selected{% endif %}>Master's</option>
+                                <option value="4" {% if selected_standard == '4' %}selected{% endif %}>Ph.D.</option>
+                            </select>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Subjects Section -->
+        <!-- Filter/Search Results Info -->
+        {% if search_query or selected_standard != 'all' %}
+        <div class="alert alert-info alert-dismissible fade show mb-4" role="alert">
+            {% if search_query %}
+                Showing results for: "{{ search_query }}"
+            {% endif %}
+            {% if selected_standard != 'all' %}
+                {% if search_query %} in {% endif %}
+                Standard: 
+                {% if selected_standard == '1' %}High School
+                {% elif selected_standard == '2' %}Bachelor's
+                {% elif selected_standard == '3' %}Master's
+                {% elif selected_standard == '4' %}Ph.D.{% endif %}
+            {% endif %}
+            <a href="{{ url_for('dashboard') }}" class="btn btn-sm btn-outline-info ms-2">Clear All</a>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
+
+        <!-- Subjects Grid -->
         <div class="row">
-        
+            {% if subjects %}
                 {% for subject in subjects %}
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card h-100">
@@ -78,17 +121,18 @@
                                 </small>
                             </p>
                             <a href="{{ url_for('view_user_subject', subject_id=subject.id) }}" 
-                            class="btn btn-primary">
+                               class="btn btn-primary">
                                 <i class="bi bi-book"></i> View Chapters
                             </a>
                         </div>
                     </div>
                 </div>
+                {% endfor %}
             {% else %}
-            <div class="col-12 text-center">
-                <p>No subjects found. Try a different search term.</p>
-            </div>
-            {% endfor %}
+                <div class="col-12 text-center">
+                    <p>No subjects found. Try different search terms or filters.</p>
+                </div>
+            {% endif %}
         </div>
     </div>
 

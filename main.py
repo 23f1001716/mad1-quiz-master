@@ -150,11 +150,11 @@ def register():
         return redirect(url_for('login'))   
     return render_template('register.html')
 
-@app.route('/logout')
+@app.route("/logout")
 def logout():
-    session.pop('user_id')
+    session.pop('user_id',None)
+    session.pop('admin',None)
     return redirect(url_for('login'))
-
 # @app.route("/admin_dashboard",methods=['GET'])
 # def admin_dashboard():
 #     if 'admin' in session:
@@ -166,10 +166,7 @@ def logout():
 @app.route("/admin_dashboard", methods=['GET'])
 def admin_dashboard():
     if 'admin' in session:
-        # Get search query
         search_query = request.args.get('search', '').strip()
-        
-        # Filter subjects if search query exists
         if search_query:
             subjects = Subject.query.filter(
                 db.or_(
@@ -179,8 +176,6 @@ def admin_dashboard():
             ).all()
         else:
             subjects = Subject.query.all()
-
-        # Get recent scores
         all_scores = Scores.query.order_by(Scores.quiz_taken_timestamp.desc()).limit(10).all()
         
         return render_template('admin_dashboard.html',
@@ -193,17 +188,10 @@ def admin_dashboard():
 def user_management():
     if 'admin' not in session:
         return redirect(url_for('login'))
-    
-    # Get search query
     search_query = request.args.get('search', '')
-    
-    # Filter users based on search
     if search_query:
         users = User.query.filter(
-            (User.username.ilike(f'%{search_query}%')) |
-            (User.email.ilike(f'%{search_query}%')) |
-            (User.name.ilike(f'%{search_query}%'))
-        ).filter(User.is_admin == False).all()
+            (User.username.ilike(f'%{search_query}%')) |(User.email.ilike(f'%{search_query}%')) |(User.name.ilike(f'%{search_query}%'))).filter(User.is_admin == False).all()
     else:
         users = User.query.filter_by(is_admin=False).all()
     
@@ -310,13 +298,8 @@ def view_subject(sub_id):
         if not subject_to_view:
             flash('Subject not found!', 'error')
             return redirect(url_for('admin_dashboard'))
-        
         search_query = request.args.get('search', '').strip()
-        
-        # Base query to always filter by subject_id
         chapters_query = Chapter.query.filter_by(subject_id=sub_id)
-        
-        # Apply search filter if search query exists
         if search_query:
             chapters = chapters_query.filter(
                 db.or_(
@@ -332,11 +315,7 @@ def view_subject(sub_id):
                              chapters_created=chapters,
                              search_query=search_query)
     return redirect(url_for('login'))
-
-
-
-
-      
+     
 @app.route('/create_chapter/<int:sub_id>',methods=['GET','POST'])
 def add_chapter(sub_id):
     if 'admin' in session:
@@ -411,18 +390,10 @@ def view_chapter(chapter_id):
             return redirect(url_for('admin_dashboard'))
 
         search_query = request.args.get('search', '').strip()
-        
-        # Base query filtered by chapter_id
         quiz_query = Quiz.query.filter_by(chapter_id=chapter_id)
-        
-        # Apply search if query exists
         if search_query:
-            quizzes = quiz_query.filter(
-                db.or_(
-                    Quiz.name.ilike(f'%{search_query}%'),
-                    Quiz.feedback.ilike(f'%{search_query}%')
-                )
-            ).all()
+            quizzes = quiz_query.filter(db.or_(Quiz.name.ilike(f'%{search_query}%'),
+                                               Quiz.feedback.ilike(f'%{search_query}%'))).all()
         else:
             quizzes = quiz_query.all()
 
@@ -586,21 +557,69 @@ def delete_question(question_id):
 #     return render_template('dashboard.html', user=user)
 
 
+# @app.route('/dashboard')
+# def dashboard():
+#     if 'user_id' not in session:
+#         return redirect(url_for('login'))
+#     user = User.query.get(session['user_id'])
+#     subjects = Subject.query.all()
+#     search_query = request.args.get('search', '')
+    
+#     if search_query:
+#         subjects = Subject.query.filter(
+#             (Subject.name.ilike(f'%{search_query}%')) |
+#             (Subject.description.ilike(f'%{search_query}%'))
+#         ).all()
+    
+#     return render_template('dashboard.html', user=user, subjects=subjects, search_query=search_query)
+
 @app.route('/dashboard')
 def dashboard():
     if 'user_id' not in session:
         return redirect(url_for('login'))
+    
     user = User.query.get(session['user_id'])
-    subjects = Subject.query.all()
-    search_query = request.args.get('search', '')
-    
+   
+
+    # Get search and filter parameters
+    search_query = request.args.get('search', '').strip()
+    selected_standard = request.args.get('standard', 'all')
+
+    # Base query
+    subjects_query = Subject.query
+
+    # Apply filters
     if search_query:
-        subjects = Subject.query.filter(
-            (Subject.name.ilike(f'%{search_query}%')) |
-            (Subject.description.ilike(f'%{search_query}%'))
-        ).all()
+        subjects_query = subjects_query.filter(
+            db.or_(
+                Subject.name.ilike(f'%{search_query}%'),
+                Subject.description.ilike(f'%{search_query}%')
+            )
+        )
     
-    return render_template('dashboard.html', user=user, subjects=subjects, search_query=search_query)
+    if selected_standard != 'all':
+        subjects_query = subjects_query.filter(Subject.subject_standard == selected_standard)
+
+    # Get filtered subjects
+    subjects = subjects_query.all()
+
+    return render_template('dashboard.html',
+                         user=user,
+                         subjects=subjects,
+                         search_query=search_query,
+                         selected_standard=selected_standard)
+
+
+@app.route('/user_profile')
+def user_profile():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    user = User.query.get(session['user_id'])
+    if not user:
+        return redirect(url_for('logout'))
+    
+    return render_template('user_profile.html', user=user)
     
 @app.route('/view_user_subject/<int:subject_id>')
 def view_user_subject(subject_id):
@@ -658,7 +677,6 @@ def submit_quiz(quiz_id):
     total_questions = len(questions)
     percentage = round((score / total_questions) * 100)
     
-    # Save score to database
     new_score = Scores(
         score=score,
         user_id=session['user_id'],
@@ -679,13 +697,32 @@ def user_history():
         return redirect(url_for('login'))
     
     user = User.query.get(session['user_id'])
-    # Get all scores for the user with related quiz information
+    
     scores = db.session.query(Scores, Quiz, Chapter, Subject).join(Quiz, Scores.quiz_id == Quiz.id).join(
         Chapter, Quiz.chapter_id == Chapter.id).join(Subject, Chapter.subject_id == Subject.id).filter(
         Scores.user_id == session['user_id']).order_by(
         Scores.quiz_taken_timestamp.desc()).all()
     
     return render_template('user_history.html', user=user, scores=scores)
+
+@app.route('/user_specific_history/<int:user_id>')
+def user_specific_history(user_id):
+    if 'admin' not in session:
+        return redirect(url_for('login'))
+    
+    user = User.query.get(user_id)
+    if not user:
+        flash('User not found!', 'error')
+        return redirect(url_for('user_management'))
+    
+    user_scores = db.session.query(Scores)\
+        .filter_by(user_id=user_id)\
+        .order_by(Scores.quiz_taken_timestamp.desc())\
+        .all()
+    
+    return render_template('user_specific_history.html',
+                         user=user,
+                         user_scores=user_scores)
       
 @app.route('/admin_summary')
 def admin_summary():
@@ -721,7 +758,7 @@ def admin_summary():
         total_attempts = 0
         for chapter in subject.sub_chapter:
             for quiz in chapter.chap_quiz:
-                if quiz.score:  # if there are scores for this quiz
+                if quiz.score: 
                     total_score += sum([score.score for score in quiz.score])
                     total_attempts += len(quiz.score)
         avg_score = total_score/total_attempts if total_attempts > 0 else 0
@@ -739,7 +776,7 @@ def admin_summary():
     subject_chart = base64.b64encode(buffer.getvalue()).decode()
     plt.close()
 
-    #Get basic statistics
+    
     total_users = User.query.filter_by(is_admin=False).count()
     total_quizzes = Quiz.query.count()
     total_subjects = Subject.query.count()

@@ -41,14 +41,11 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
+   
     <div class="container main-content">
-        <!-- Header Section -->
         <div class="dashboard-header">
             <h1>User Management</h1>
         </div>
-
-        <!-- Search Section -->
         <div class="card mb-4">
             <div class="card-body">
                 <form action="{{ url_for('user_management') }}" method="GET" class="row g-3">
@@ -67,8 +64,6 @@
                 </form>
             </div>
         </div>
-
-        <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -80,7 +75,6 @@
             {% endif %}
         {% endwith %}
 
-        <!-- Users Table -->
         <div class="card">
             <div class="card-body">
                 <div class="table-responsive">
@@ -91,7 +85,7 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Qualification</th>
-                                <th>Join Date</th>
+                                <th>Date Of Birth</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -113,6 +107,9 @@
                                         {% endif %}
                                     </td>
                                     <td>
+                                        <a href="{{ url_for('user_specific_history', user_id=user.id) }}" class="btn btn-info btn-sm">
+                                            <i class="bi bi-clock-history"></i> View History
+                                        </a>
                                         <form action="{{ url_for('toggle_user_flag', user_id=user.id) }}" method="POST" class="d-inline">
                                             <button type="submit" 
                                                     class="btn btn-sm {% if user.is_flagged %}btn-success{% else %}btn-danger{% endif %}"
