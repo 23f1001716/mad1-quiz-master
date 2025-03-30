@@ -1,11 +1,9 @@
-/* Base Styles */
 body {
     background-color: #bee9fa;
     min-height: 100vh;
     padding-top: 80px;
 }
 
-/* Layout Components */
 .main-content {
     background: rgba(255, 255, 255, 0.95);
     border-radius: 15px;
@@ -23,7 +21,7 @@ body {
 
 .card:hover { transform: translateY(-5px); }
 
-/* Navigation */
+
 .navbar {
     background-color: rgba(52, 74, 83, 0.95) !important;
     backdrop-filter: blur(10px);
@@ -49,7 +47,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* Form Elements */
 .form-control, .form-select {
     border-radius: 8px;
     border: 1px solid #eee;
@@ -62,7 +59,6 @@ body {
     box-shadow: 0 0 0 0.2rem rgba(22, 195, 242, 0.25);
 }
 
-/* Buttons */
 .btn {
     border-radius: 8px;
     padding: 8px 16px;
@@ -80,7 +76,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* Tables */
 .table thead th {
     background-color: #344a53;
     color: #d8ebf4;
@@ -92,7 +87,7 @@ body {
     background-color: rgba(22, 195, 242, 0.1);
 }
 
-/* Profile Styles */
+
 .profile-card {
     margin-top: 20px;
 }
@@ -114,7 +109,7 @@ body {
     margin: 0;
 }
 
-/* Quiz Elements */
+
 .quiz-header {
     background-color: rgba(255, 255, 255, 0.9);
     padding: 20px;
@@ -132,7 +127,7 @@ body {
     background-color: rgba(22, 195, 242, 0.1);
 }
 
-/* Alerts */
+
 .alert {
     border-radius: 10px;
     border: none;
@@ -145,7 +140,6 @@ body {
     color: #344a53;
 }
 
-/* Utility Classes */
 .badge { 
     padding: 8px 12px; 
     font-size: 0.9rem; 
@@ -157,7 +151,7 @@ body {
 .bg-primary { background-color: #16c3f2 !important; }
 .bg-secondary { background-color: #e6a76f !important; }
 
-/* Responsive Design */
+
 @media (max-width: 768px) {
     .main-content { padding: 15px; }
     .dashboard-header { 
